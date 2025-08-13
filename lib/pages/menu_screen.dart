@@ -1,4 +1,5 @@
 import 'package:api_flutter/pages/posts/list_post_screen.dart';
+import 'package:api_flutter/pages/field/list_field.dart';
 import 'package:flutter/material.dart';
 import 'package:api_flutter/pages/home_screen.dart';
 import 'package:api_flutter/pages/profile_screen.dart';
@@ -16,6 +17,7 @@ class _MenuScreenState extends State<MenuScreen> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const ListPostScreen(),
+    const FieldPage(),
     const ProfileScreen(),
   ];
 
@@ -62,6 +64,10 @@ class _MenuScreenState extends State<MenuScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.article_outlined),
                 label: 'Post',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.article_outlined),
+                label: 'Field',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),
