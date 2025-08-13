@@ -1,9 +1,11 @@
+// ignore_for_file: unused_import
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:api_flutter/models/posts_model.dart';
 import 'package:api_flutter/services/post_service.dart';
-
+import 'package:api_flutter/pages/posts/detail_post.dart';
+import 'package:api_flutter/pages/posts/create_post.dart';
 
 class ListPostScreen extends StatefulWidget {
   const ListPostScreen({super.key});
@@ -49,6 +51,19 @@ class _ListPostScreenState extends State<ListPostScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Posts'),
+        actions: [
+          IconButton(onPressed: _refreshPosts, icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreatePostScreen()),
+              );
+              if (result == true) _refreshPosts();
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: FutureBuilder<PostModel>(
         future: _futurePosts,
@@ -72,22 +87,22 @@ class _ListPostScreenState extends State<ListPostScreen> {
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: ListTile(
-                  // onTap: () async {
-                  //   final result = await Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (_) => PostDetailScreen(post: post),
-                  //     ),
-                  //   );
-                  //   if (result == true) _refreshPosts();
-                  // },
+                  onTap: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PostDetailScreen(post: post),
+                      ),
+                    );
+                    if (result == true) _refreshPosts();
+                  },
                   leading: post.foto != null && post.foto!.isNotEmpty
                       ? Image.network(
                           'http://127.0.0.1:8000/storage/${post.foto!}',
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
+                          errorBuilder: (context, _, __) =>
                               const Icon(Icons.broken_image),
                         )
                       : const Icon(Icons.article),

@@ -1,4 +1,4 @@
-import 'package:api_flutter/posts/list_post_screen.dart';
+import 'package:api_flutter/pages/posts/list_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:api_flutter/pages/home_screen.dart';
 import 'package:api_flutter/pages/profile_screen.dart';
