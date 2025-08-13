@@ -39,9 +39,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       setState(() => _isLoading = true);
       final success = await PostService.deletePost(widget.post.id!);
       if (success && mounted) {
-        Navigator.pop(context, 'deleted');
+        Navigator.pop(context, true);
         ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Post berhasil dihapus")));
+            .showSnackBar(SnackBar(content: Text("\"${widget.post.title}\" berhasil dihapus")));
       }
       setState(() => _isLoading = false);
     }
