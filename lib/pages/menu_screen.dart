@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:api_flutter/pages/posts/list_post_screen.dart';
 import 'package:api_flutter/pages/field/list_field.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +18,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const ListPostScreen(),
+    // const ListPostScreen(),
     const FieldPage(),
     const ProfileScreen(),
   ];
@@ -61,13 +63,17 @@ class _MenuScreenState extends State<MenuScreen> {
                 icon: Icon(Icons.home_rounded),
                 label: 'Home',
               ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.article_outlined),
-                label: 'Post',
-              ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.article_outlined),
+              //   label: 'Post',
+              // ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.article_outlined),
                 label: 'Field',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.sports_soccer),
+                label: 'Booking',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person_outline),

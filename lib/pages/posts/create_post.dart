@@ -12,6 +12,7 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final _formKey = GlobalKey<FormState>();
+  
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   int _status = 1;

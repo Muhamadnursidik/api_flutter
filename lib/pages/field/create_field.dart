@@ -1,47 +1,31 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:api_flutter/models/field_model.dart';
 import 'package:api_flutter/services/field_service.dart';
 
-class EditFieldPage extends StatefulWidget {
-  final DataField field;
-
-  const EditFieldPage({super.key, required this.field});
+class CreateFieldPage extends StatefulWidget {
+  const CreateFieldPage({super.key});
 
   @override
-  State<EditFieldPage> createState() => _EditFieldPageState();
+  State<CreateFieldPage> createState() => _CreateFieldPageState();
 }
 
-class _EditFieldPageState extends State<EditFieldPage> {
+class _CreateFieldPageState extends State<CreateFieldPage> {
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _nameController;
-  late TextEditingController _typeController;
-  late TextEditingController _priceController;
-  late TextEditingController _descriptionController;
-
+  final _nameController = TextEditingController();
+  final _locationIdController = TextEditingController();
+  final _typeController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _descriptionController = TextEditingController();
   Uint8List? _imageBytes;
   String? _imageName;
-  bool _imageChanged = false;
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.field.name ?? '');
-    _typeController = TextEditingController(text: widget.field.type ?? '');
-    _priceController = TextEditingController(
-      text: widget.field.pricePerHour?.toString() ?? '',
-    );
-    _descriptionController = TextEditingController(
-      text: widget.field.description ?? '',
-    );
-  }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _locationIdController.dispose();
     _typeController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
@@ -60,24 +44,22 @@ class _EditFieldPageState extends State<EditFieldPage> {
       setState(() {
         _imageBytes = bytes;
         _imageName = image.name;
-        _imageChanged = true;
       });
     }
   }
 
-  Future<void> _saveField() async {
+  Future<void> _createField() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    final success = await FieldService.updateField(
-      widget.field.id ?? 0,
+    final success = await FieldService.createField(
       _nameController.text,
-      widget.field.locationId ?? 0,
+      int.parse(_locationIdController.text),
       _typeController.text,
-      int.tryParse(_priceController.text) ?? 0,
+      int.parse(_priceController.text),
       _descriptionController.text,
-      _imageChanged ? _imageBytes : null,
-      _imageChanged ? _imageName : null,
+      _imageBytes,
+      _imageName,
     );
 
     setState(() => _isLoading = false);
@@ -86,53 +68,50 @@ class _EditFieldPageState extends State<EditFieldPage> {
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Field berhasil diupdate'),
+          content: Text('Field berhasil dibuat'),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Gagal mengupdate Field'),
+          content: Text('Gagal membuat Field'),
           backgroundColor: Colors.red,
         ),
       );
     }
-      if (success) Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Edit Lapangan")),
+      appBar: AppBar(title: const Text("Tambah Lapangan")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              // Gambar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child:
-                    _imageBytes != null
-                        ? Image.memory(
-                          _imageBytes!,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        )
-                        : (widget.field.img?.isNotEmpty ?? false)
-                        ? Image.network(
-                          'http://localhost:8000/storage/${widget.field.img!}',
-                          height: 200,
-                          fit: BoxFit.cover,
-                        )
-                        : Container(
-                          height: 200,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image, size: 50),
-                        ),
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: "Nama Lapangan"),
+                validator:
+                    (value) =>
+                        value!.isEmpty ? "Nama tidak boleh kosong" : null,
               ),
+
+              const SizedBox(height: 16),
+
+              // Gambar
+              if (_imageBytes != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _imageBytes!,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               TextButton.icon(
                 onPressed: _pickImage,
                 icon: const Icon(Icons.photo),
@@ -146,7 +125,6 @@ class _EditFieldPageState extends State<EditFieldPage> {
                       () => setState(() {
                         _imageBytes = null;
                         _imageName = null;
-                        _imageChanged = false;
                       }),
                   icon: const Icon(Icons.delete, color: Colors.red),
                   label: const Text(
@@ -155,13 +133,13 @@ class _EditFieldPageState extends State<EditFieldPage> {
                   ),
                 ),
 
-              const SizedBox(height: 16),
               TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: "Nama Lapangan"),
+                controller: _locationIdController,
+                decoration: const InputDecoration(labelText: "ID Lokasi"),
+                keyboardType: TextInputType.number,
                 validator:
                     (value) =>
-                        value!.isEmpty ? "Nama tidak boleh kosong" : null,
+                        value!.isEmpty ? "Lokasi tidak boleh kosong" : null,
               ),
               TextFormField(
                 controller: _typeController,
@@ -188,11 +166,11 @@ class _EditFieldPageState extends State<EditFieldPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _isLoading ? null : _saveField,
+                onPressed: _isLoading ? null : _createField,
                 child:
                     _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Simpan"),
+                        : Text("Simpan"),
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:api_flutter/models/field_model.dart';
 import 'package:api_flutter/services/field_service.dart';
 import 'package:api_flutter/pages/field/detail.field.dart';
+import 'package:api_flutter/pages/field/create_field.dart'; // halaman create
 
 class FieldPage extends StatefulWidget {
   const FieldPage({super.key});
@@ -11,7 +12,7 @@ class FieldPage extends StatefulWidget {
 }
 
 class _FieldPageState extends State<FieldPage> {
-  late Future<List<Field>> _fields;
+  late Future<Field> _fields;
 
   @override
   void initState() {
@@ -19,23 +20,49 @@ class _FieldPageState extends State<FieldPage> {
     _fields = FieldService.getFields();
   }
 
+  void _loadData() {
+    setState(() {
+      _fields = FieldService.getFields();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Daftar Lapangan")),
-      body: FutureBuilder<List<Field>>(
+      appBar: AppBar(
+        title: const Text("Daftar Lapangan"),
+        actions: [
+          IconButton(onPressed: _loadData, icon: const Icon(Icons.refresh)),
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: "Tambah Lapangan",
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateFieldPage()),
+              );
+              // reload data kalau berhasil tambah
+              if (result == true) {
+                _loadData();
+              }
+            },
+          ),
+        ],
+      ),
+      body: FutureBuilder<Field>(
         future: _fields,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          }
+          if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          }
+          final fields = snapshot.data?.data ?? [];
+          if (fields.isEmpty) {
             return const Center(child: Text("Tidak ada data lapangan"));
           }
 
-          final fields = snapshot.data!;
-          // ...
           return GridView.builder(
             padding: const EdgeInsets.all(8),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -81,7 +108,7 @@ class _FieldPageState extends State<FieldPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              field.name,
+                              field.name!,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -91,7 +118,7 @@ class _FieldPageState extends State<FieldPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              field.type,
+                              field.type!,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                             const SizedBox(height: 4),

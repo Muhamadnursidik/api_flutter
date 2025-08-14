@@ -1,10 +1,12 @@
+// ignore_for_file: unused_field
+
 import 'package:api_flutter/pages/field/edit_field.dart';
 import 'package:api_flutter/services/field_service.dart';
 import 'package:flutter/material.dart';
 import 'package:api_flutter/models/field_model.dart';
 
 class FieldDetailPage extends StatefulWidget {
-  final Field field;
+  final DataField field;
 
   const FieldDetailPage({super.key, required this.field});
 
@@ -13,18 +15,54 @@ class FieldDetailPage extends StatefulWidget {
 }
 
 class _FieldDetailPageState extends State<FieldDetailPage> {
-  late Future<List<Field>> _fields;
+  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _fields = FieldService.getFields();
+  Future<void> deleteField() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Hapus field"),
+            content: Text("Yakin ingin menghapus \"${widget.field.name}\"?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Batal"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text("Hapus"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      setState(() => _isLoading = true);
+      final success = await FieldService.deleteField(widget.field.id!);
+      if (success && mounted) {
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("\"${widget.field.name}\" berhasil dihapus")),
+        );
+      }
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.field.name)),
+      appBar: AppBar(
+        title: Text(widget.field.name!),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _isLoading ? null : deleteField,
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +82,7 @@ class _FieldDetailPageState extends State<FieldDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.field.name,
+                    widget.field.name!,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -71,59 +109,15 @@ class _FieldDetailPageState extends State<FieldDetailPage> {
                                     ), // kirim data field
                               ),
                             );
-
-                            if (updated == true) {
-                              // refresh data lamun balik ti edit
-                              setState(() {
-                                _fields = FieldService.getFields();
-                              });
+                            if (updated == true && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Field berhasil diperbarui'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              setState(() {});
                             }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          icon: const Icon(Icons.delete),
-                          label: const Text("Hapus"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          onPressed: () {
-                            // konfirmasi hapus
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (ctx) => AlertDialog(
-                                    title: const Text("Konfirmasi"),
-                                    content: const Text(
-                                      "Apakah anda yakin ingin menghapus lapangan ini?",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () => Navigator.pop(ctx),
-                                      ),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.red,
-                                        ),
-                                        child: const Text("Hapus"),
-                                        onPressed: () {
-                                          Navigator.pop(ctx);
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text("Lapangan dihapus"),
-                                            ),
-                                          );
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                            );
                           },
                         ),
                       ),
