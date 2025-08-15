@@ -1,5 +1,6 @@
 import 'package:api_flutter/pages/field/list_field.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:api_flutter/models/field_model.dart';
 import 'package:api_flutter/services/field_service.dart';
 import 'package:api_flutter/pages/field/detail.field.dart';
@@ -26,6 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
       fields = response.data ?? []; // response itu tipe Field
     });
   }
+
+  final formatter = NumberFormat.currency(
+  locale: 'id_ID', // Indonesia
+  symbol: 'Rp',    // Simbol Rupiah
+  decimalDigits: 0 // Hapus koma
+);
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Rp${field.pricePerHour} /jam",
+                    "${formatter.format(field.pricePerHour)} /jam",
                     style: const TextStyle(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,

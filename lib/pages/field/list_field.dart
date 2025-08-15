@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:api_flutter/models/field_model.dart';
 import 'package:api_flutter/services/field_service.dart';
 import 'package:api_flutter/pages/field/detail.field.dart';
@@ -25,6 +26,12 @@ class _FieldPageState extends State<FieldPage> {
       _fields = FieldService.getFields();
     });
   }
+
+  final formatter = NumberFormat.currency(
+  locale: 'id_ID',
+  symbol: 'Rp',
+  decimalDigits: 0 
+);
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +130,7 @@ class _FieldPageState extends State<FieldPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "Rp${field.pricePerHour} /jam",
+                              "${formatter.format(field.pricePerHour)} /jam",
                               style: const TextStyle(
                                 color: Colors.green,
                                 fontWeight: FontWeight.bold,

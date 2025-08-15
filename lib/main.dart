@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:api_flutter/pages/auth/login_screen.dart';
 import 'package:api_flutter/pages/menu_screen.dart';
 import 'package:api_flutter/services/auth_service.dart';
+import 'package:intl/intl.dart';
 
-void main() {
-  runApp(MyApp());
+// ✅ Fungsi main di luar class
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id', null); // load locale Indonesia
+  runApp(const MyApp());
+}
+
+// ✅ Fungsi formatDate di luar class supaya bisa dipanggil dimana saja
+String formatDate(String dateStr) {
+  if (dateStr.isEmpty) return '-';
+  final date = DateTime.tryParse(dateStr);
+  if (date == null) return '-';
+  return DateFormat('dd MMMM yyyy HH:mm', 'id').format(date);
 }
 
 class MyApp extends StatelessWidget {
@@ -15,7 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Belajar Flutter',
-      home: AuthCheck(),
+      home: const AuthCheck(),
     );
   }
 }
@@ -47,9 +60,9 @@ class _AuthCheckState extends State<AuthCheck> {
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasData && snapshot.data == true) {
-          return MenuScreen();
+          return const MenuScreen();
         } else {
-          return LoginScreen();
+          return const LoginScreen();
         }
       },
     );

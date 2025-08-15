@@ -1,5 +1,6 @@
 // ignore_for_file: unused_import
 
+import 'package:api_flutter/pages/booking/list_booking.dart';
 import 'package:api_flutter/pages/posts/list_post_screen.dart';
 import 'package:api_flutter/pages/field/list_field.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class _MenuScreenState extends State<MenuScreen> {
     const HomeScreen(),
     // const ListPostScreen(),
     const FieldPage(),
+    const BookingListPage(),
     const ProfileScreen(),
   ];
 

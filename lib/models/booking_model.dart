@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final booking = bookingFromJson(jsonString);
-
 import 'dart:convert';
 
 Booking bookingFromJson(String str) => Booking.fromJson(json.decode(str));
@@ -10,7 +6,7 @@ String bookingToJson(Booking data) => json.encode(data.toJson());
 
 class Booking {
     bool? success;
-    List<Datum>? data;
+    List<DataBooking>? data;
     String? message;
 
     Booking({
@@ -21,7 +17,7 @@ class Booking {
 
     factory Booking.fromJson(Map<String, dynamic> json) => Booking(
         success: json["success"],
-        data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+        data: json["data"] == null ? [] : List<DataBooking>.from(json["data"]!.map((x) => DataBooking.fromJson(x))),
         message: json["message"],
     );
 
@@ -32,7 +28,7 @@ class Booking {
     };
 }
 
-class Datum {
+class DataBooking {
     int? id;
     int? fieldId;
     int? userId;
@@ -44,7 +40,7 @@ class Datum {
     Field? field;
     User? user;
 
-    Datum({
+    DataBooking({
         this.id,
         this.fieldId,
         this.userId,
@@ -57,7 +53,7 @@ class Datum {
         this.user,
     });
 
-    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+    factory DataBooking.fromJson(Map<String, dynamic> json) => DataBooking(
         id: json["id"],
         fieldId: json["field_id"],
         userId: json["user_id"],

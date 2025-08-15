@@ -4,6 +4,7 @@ import 'package:api_flutter/pages/field/edit_field.dart';
 import 'package:api_flutter/services/field_service.dart';
 import 'package:flutter/material.dart';
 import 'package:api_flutter/models/field_model.dart';
+import 'package:api_flutter/services/booking_service.dart';
 
 class FieldDetailPage extends StatefulWidget {
   final DataField field;
@@ -104,9 +105,8 @@ class _FieldDetailPageState extends State<FieldDetailPage> {
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (context) => EditFieldPage(
-                                      field: widget.field,
-                                    ), // kirim data field
+                                    (context) =>
+                                        EditFieldPage(field: widget.field),
                               ),
                             );
                             if (updated == true && mounted) {
@@ -119,6 +119,122 @@ class _FieldDetailPageState extends State<FieldDetailPage> {
                               setState(() {});
                             }
                           },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.add_shopping_cart),
+                          label: const Text("Booking"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                          ),
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () async {
+                                    final now = DateTime.now();
+
+                                    // Pilih tanggal mulai
+                                    final pickedDate = await showDatePicker(
+                                      context: context,
+                                      initialDate: now,
+                                      firstDate: now,
+                                      lastDate: DateTime(now.year + 1),
+                                      locale: const Locale('id', 'ID'),
+                                    );
+
+                                    if (pickedDate == null) return; // batal
+
+                                    // Pilih jam mulai
+                                    final pickedStartTime =
+                                        await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.fromDateTime(
+                                            now,
+                                          ),
+                                        );
+
+                                    if (pickedStartTime == null)
+                                      return; // batal
+
+                                    // Pilih jam selesai
+                                    final pickedEndTime = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.fromDateTime(
+                                        now.add(const Duration(hours: 2)),
+                                      ),
+                                    );
+
+                                    if (pickedEndTime == null) return; // batal
+
+                                    // Gabung tanggal & waktu
+                                    final startDateTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedStartTime.hour,
+                                      pickedStartTime.minute,
+                                    );
+
+                                    final endDateTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedEndTime.hour,
+                                      pickedEndTime.minute,
+                                    );
+
+                                    if (endDateTime.isBefore(startDateTime)) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Waktu selesai harus setelah waktu mulai',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    setState(() => _isLoading = true);
+                                    final success =
+                                        await BookingService.createBooking(
+                                          fieldId: widget.field.id!,
+                                          startTime:
+                                              startDateTime.toIso8601String(),
+                                          endTime:
+                                              endDateTime.toIso8601String(),
+                                          status: "pending",
+                                        );
+                                    setState(() => _isLoading = false);
+
+                                    if (success && mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Booking berhasil dibuat',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Gagal membuat booking',
+                                          ),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
                         ),
                       ),
                     ],
